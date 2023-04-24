@@ -1,0 +1,121 @@
+﻿<Window x:Class="DatabaseApp.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:DatabaseApp.userControls.pages"
+        mc:Ignorable="d"
+        Title="База данных АДИ" Height="500" Width="800" Background="#B9B9B9">
+
+    <WindowChrome.WindowChrome>
+        <WindowChrome ResizeBorderThickness="6" CaptionHeight="22" CornerRadius="0"
+                      GlassFrameThickness="0" UseAeroCaptionButtons="False"/>
+    </WindowChrome.WindowChrome>
+
+    <Grid Margin="1" Background="{StaticResource App.Background}">
+        <DockPanel Height="26" HorizontalAlignment="Stretch" VerticalAlignment="Top">
+            <Image Source="/Images/logo.png"/>
+            <DockPanel Width="5"/>
+            <Menu Height="18" VerticalAlignment="Center" HorizontalAlignment="Center" WindowChrome.IsHitTestVisibleInChrome="True" Margin="0,2,0,0">
+                <MenuItem Header="Файл" Height="18" VerticalAlignment="Center">
+                    <MenuItem Header="Открыть файл" Click="Button_Click"/>
+                    <MenuItem Header="Сохранить файл"/>
+                    <MenuItem Header="Сохранить как..."/>
+                    <MenuItem Header="Экспорт в JSON..."/>
+                    <MenuItem Header="Экспорт для MS Excel..."/>
+                    <Separator />
+                    <MenuItem Header="Выход"/>
+                </MenuItem>
+                <MenuItem Header="Действия" VerticalAlignment="Center">
+                    <MenuItem Header="Добавить абитуриента"/>
+                    <MenuItem Header="Редактировать абитуриента"/>
+                    <MenuItem Header="Дублировать абитуриента"/>
+                    <MenuItem Header="Удалить абитуриента"/>
+                    <Separator/>
+                    <MenuItem Header="Очистить все поля"/>
+                </MenuItem>
+                <MenuItem Header="Справка" VerticalAlignment="Center">
+                    <MenuItem Header="Проверить наличие обновлений" Click="CheckForUpdatesButton_Click"/>
+                    <MenuItem Header="Обновить" x:Name="updateBtn" Click="UpdateButton_Click"/>
+                    <Separator/>
+                    <MenuItem Header="О программе ADI-PC" Click="About_Click"/>
+                </MenuItem>
+            </Menu>
+            <StackPanel Height="26" VerticalAlignment="Center" Orientation="Horizontal" HorizontalAlignment="Right">
+                <Button Style="{DynamicResource TitleBarButtonStyle}" Width="34" Height="26" WindowChrome.IsHitTestVisibleInChrome="True">
+                    <Path
+                Stroke="{Binding Foreground, RelativeSource={RelativeSource AncestorType={x:Type Button}}}"
+                StrokeThickness="1"
+                Stretch="None"
+                RenderOptions.EdgeMode="Aliased"
+                Data="M0,8 H8 M0,7 H8 M0,6 H8"
+            />
+                </Button>
+                <Button Style="{DynamicResource TitleBarButtonStyle}" Width="34" Height="26" WindowChrome.IsHitTestVisibleInChrome="True">
+                    <Path
+                Stroke="{Binding Foreground, RelativeSource={RelativeSource AncestorType={x:Type Button}}}"
+                StrokeThickness="1"
+                Stretch="None"
+                RenderOptions.EdgeMode="Aliased"
+                Data="M0,0 H8 V8 H0 V-0.5 M0,1 H8 M0,2 H8"
+            />
+                </Button>
+                <Button Style="{DynamicResource TitleBarButtonStyle}" Width="34" Height="26" WindowChrome.IsHitTestVisibleInChrome="True">
+                    <Path
+                Stroke="{Binding Foreground, RelativeSource={RelativeSource AncestorType={x:Type Button}}}"
+                StrokeThickness="1.5"
+                Stretch="None"
+                Data="M0,0 L8,8 M0,8 L8,0"
+            />
+                </Button>
+            </StackPanel>
+        </DockPanel>
+
+
+        <TabControl Background="White" Margin="5,41,5,20" Padding="0">
+            <TabItem Header="Список абитуриентов" Width="Auto" FontSize="14">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="3*"/>
+                        <RowDefinition Height="76*"/>
+                    </Grid.RowDefinitions>
+                    <TextBox Template="{DynamicResource TextBoxSearch}" x:Name="searchByID" Text="Поиск по № личного дела" VerticalContentAlignment="Center" Height="30" VerticalAlignment="Top" Margin="0,0,450,0" Grid.RowSpan="2"/>
+                    <ListBox x:Name="_dbList" BorderThickness="1,1,0,0" BorderBrush="{StaticResource Controls.Border}" SelectionMode="Single" Width="Auto" Margin="0,15,450,0" SelectionChanged="_dbList_SelectionChanged" Foreground="Black" ScrollViewer.CanContentScroll="True" Grid.Row="1" />
+
+                    <!--<ListView.View>
+                            <GridView>
+                                <GridViewColumn Header="№ личного дела" DisplayMemberBinding="{Binding personalID}"/>
+                                <GridViewColumn Header="ФИО" DisplayMemberBinding="{Binding name}"/>
+                            </GridView>
+                        </ListView.View>
+                    </ListView>-->
+                    <!--<StackPanel Height="30" Orientation="Horizontal" VerticalAlignment="Top" Grid.RowSpan="2" HorizontalAlignment="Right" Width="450">
+                        <Button Style="{DynamicResource ButtonStyle1}" Width="150" Content="Редактировать"/>
+                        <Button Style="{DynamicResource ButtonStyle1}" Width="150" Content="Дублировать"/>
+                        <Button Style="{DynamicResource ButtonStyle1}" Width="150" HorizontalAlignment="Right" Content="Удалить"/>
+                    </StackPanel>-->
+                    <ListBox x:Name="_dbListPreview" Foreground="Black" BorderThickness="1,1,0,0" BorderBrush="{StaticResource Controls.Border}" Width="450" Height="Auto" ScrollViewer.VerticalScrollBarVisibility="Visible" ScrollViewer.HorizontalScrollBarVisibility="Disabled" HorizontalAlignment="Right" UseLayoutRounding="False" ScrollViewer.CanContentScroll="False" VerticalContentAlignment="Stretch" Margin="0,-12,0,0" Grid.Row="1"/>
+                </Grid>
+            </TabItem>
+            <!--<TabItem Header="Таблица">
+                <DataGrid RowStyle="{DynamicResource DataGridRowStyle1}" HeadersVisibility="Column" RowHeaderStyle="{DynamicResource DataGridRowHeaderStyle1}" x:Name="_database" CellStyle="{DynamicResource DataGridCellStyle1}" ColumnHeaderStyle="{DynamicResource DataGridColumnHeaderStyle1}" AutoGenerateColumns="False" SelectedCellsChanged="_database_SelectedCellsChanged" SelectionChanged="_database_SelectionChanged" HorizontalGridLinesBrush="{DynamicResource PDApps.Contols.Menu.Border}" VerticalGridLinesBrush="{DynamicResource PDApps.Contols.Menu.Border}">
+                    <DataGrid.Columns>
+                        <DataGridTextColumn Header="№ личного дела" Binding="{Binding personalID}" />
+                    </DataGrid.Columns>
+                </DataGrid>
+            </TabItem>-->
+            <TabItem Header="Ввод данных">
+                <local:page1/>
+            </TabItem>
+        </TabControl>
+
+        <StackPanel Background="#861B2D"  Height="18" VerticalAlignment="Bottom">
+            <TextBlock x:Name="txtDebug" Foreground="White" Padding="5,0,0,0" Text="..." Height="18"/>
+        </StackPanel>
+        <Button Visibility="Hidden" Content="Button" HorizontalAlignment="Left" Margin="146,56,0,0" VerticalAlignment="Top" Click="Button_Click"/>
+        <Button Visibility="Hidden" Content="Button" HorizontalAlignment="Left" Margin="273,66,0,0" VerticalAlignment="Top" Click="Button_Click_1"/>
+        <TextBox Visibility="Hidden" x:Name="testNAME" HorizontalAlignment="Left" Margin="322,48,0,0" TextWrapping="Wrap" Text="TextBox" VerticalAlignment="Top" Width="194"/>
+        <TextBox Visibility="Hidden" x:Name="testCODE" HorizontalAlignment="Left" Margin="322,76,0,0" TextWrapping="Wrap" Text="TextBox" VerticalAlignment="Top" Width="194"/>
+        <Button Visibility="Hidden" Content="Button" HorizontalAlignment="Left" Margin="540,57,0,0" VerticalAlignment="Top" Click="Button_Click_2"/>
+    </Grid>
+</Window>

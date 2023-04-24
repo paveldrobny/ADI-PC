@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<package >
+  <metadata>
+    <id>DatabaseApp</id>
+    <version>0.3.9</version>
+    <title>ADI PC</title>
+    <authors>Pavel Drobny</authors>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <license type="expression">MIT</license>
+    <!-- <icon>icon.png</icon> -->
+    <!-- <projectUrl>http://project_url_here_or_delete_this_line/</projectUrl> -->
+    <description>ADI PC by Pavel Drobny</description>
+    <releaseNotes>Summary of changes made in this release of the package.</releaseNotes>
+    <copyright>Copyright by Pavel Drobny</copyright>
+    <tags>Tag1 Tag3</tags>
+  </metadata>
+
+  <files>
+	<file src="bin\Release\**" target="lib\net45"/>
+  </files>
+</package>

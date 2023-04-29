@@ -6,14 +6,9 @@ using Squirrel;
 using Microsoft.Win32;
 using System.IO;
 using Newtonsoft.Json;
-using System.Xml.Linq;
 using System.Windows.Documents;
-using System.Windows.Media;
-using System.Runtime.InteropServices;
-using System.Windows.Interop;
-using System.Windows.Data;
-using System.Web.Configuration;
 using System.Reflection;
+using System.Collections.ObjectModel;
 
 namespace DatabaseApp
 {
@@ -23,7 +18,8 @@ namespace DatabaseApp
         UpdateManager manager;
         public string version;
 
-        public List<Data> datas = new List<Data>();
+        public ObservableCollection<Data> datas = new ObservableCollection<Data>();
+  
         public string[] propList = new[] { "№ Личного дела", "ФИО", "ИНН", "Статус", "Конкурсный балл",
             "Телефон", "Факультет", "Форма обучения", "Категория", "Образовательная программа", "План",
             "Наличие льгот", "Преим. право зачисления", "Доп. балл / причины начисления",
@@ -47,8 +43,16 @@ namespace DatabaseApp
 
             datas.Add(data);
 
-            DebugLog(DebugState.None);
+            OutputLog(OutputState.None);
             updateBtn.IsEnabled = false;
+        }
+
+        private bool UserFilter(object item)
+        {
+            if (string.IsNullOrEmpty(searchByID.Text))
+                return true;
+            else
+                return ((item as Data).results[0].personalID.IndexOf(searchByID.Text, StringComparison.OrdinalIgnoreCase) >= 0);
         }
 
         private async void MainWindow_Loaded(object sender, RoutedEventArgs e)
@@ -90,15 +94,18 @@ namespace DatabaseApp
             MessageBox.Show("Обновление завершенно!", "ADI PC");
         }
 
-        void DebugLog(DebugState state)
+        void OutputLog(OutputState state)
         {
             switch (state)
             {
-                case DebugState.None:
+                case OutputState.None:
                     txtDebug.Text = $"Здесь будут отображаться последние действия.";
                     break;
-                case DebugState.Selected:
+                case OutputState.Selected:
                     txtDebug.Text = $"Выбрана {_dbList.SelectedIndex + 1} строка (Всего: {_dbList.Items.Count})";
+                    break;
+                case OutputState.Debug:
+                    txtDebug.Text = searchByID.Text == "" ? "Test" : "_";
                     break;
             }
         }
@@ -128,9 +135,9 @@ namespace DatabaseApp
                         datas.Clear();
                         datas.Add(result);
                         _dbList.ItemsSource = datas[0].results;
+                        _dbList.Items.Filter = IDFilter;
                         _dbList.Items.Refresh();
                     }
-
                 }
                 else
                 {
@@ -139,6 +146,7 @@ namespace DatabaseApp
                     datas.Add(result);
 
                     _dbList.ItemsSource = datas[0].results;
+                    _dbList.Items.Filter = IDFilter;
                     _dbList.Items.Refresh();
                 }
 
@@ -151,8 +159,8 @@ namespace DatabaseApp
         {
             SaveFileDialog saveFileDialog1 = new SaveFileDialog();
 
-            saveFileDialog1.Filter = "(*.json)|*.json";
-            saveFileDialog1.DefaultExt = ".json";
+            saveFileDialog1.Filter = "(*.xls)|*.xls";
+            saveFileDialog1.DefaultExt = ".xls";
 
             if (saveFileDialog1.ShowDialog() == true)
             {
@@ -170,7 +178,7 @@ namespace DatabaseApp
 
         private void _dbList_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            DebugLog(DebugState.Selected);
+            OutputLog(OutputState.Selected);
 
             if (_dbList.SelectedIndex != -1)
             {
@@ -195,25 +203,259 @@ namespace DatabaseApp
             }
         }
 
-        private void Button_Click_2(object sender, RoutedEventArgs e)
+        private void AddStudent()
         {
-            Results r = new Results() { name = testNAME.Text, personalID = testCODE.Text };
+            Results r = new Results() { 
+                documentsDate = inputDocumentsDate.Text, 
+                personalID = inputPersonalCode.Text, 
+                name = inputName.Text,
+                adress = inputAdress.Text,
+                birthday = inputBirthday.Text,
+                icode = inputIcode.Text,
+                identityDocument = inputIdentityDocument.Text,
+                previouslyEducation = inputPreviouslyEducation.Text,
+                averageScoreCertificate = Convert.ToDouble(inputAverageScoreCertificate.Text),
+                scoreRussian = Convert.ToInt32(inputScoreRussian.Text),
+                scoreMath = Convert.ToInt32(inputScoreMath.Text),
+                profileSubject = inputProfileSubject.Text,
+                scoreProfileSubject = Convert.ToInt32(inputScoreProfileSubject.Text),
+                averageScoreDegree = Convert.ToDouble(inputAverageScoreDegree.Text),
+                scoreGIA = Convert.ToInt32(inputScoreGIA.Text),
+                scoreForeign = Convert.ToInt32(inputScoreForeign.Text),
+                averageScoreMiddle = Convert.ToDouble(inputAverageScoreMiddle.Text),
+                score = 0,
+                //score = Convert.ToInt32(inputAverageScoreCertificate.Text) 
+                //        + Convert.ToInt32(inputScoreRussian.Text) 
+                //        + Convert.ToInt32(inputScoreMath.Text) 
+                //        + Convert.ToInt32(inputScoreProfileSubject.Text)
+                //        + Convert.ToInt32(inputAverageScoreDegree.Text)
+                //        + Convert.ToInt32(inputScoreGIA.Text) 
+                //        + Convert.ToInt32(inputScoreForeign.Text)
+                //        + Convert.ToInt32(inputAverageScoreMiddle.Text),
+                faculty = inputFaculty.Text,
+                formEducation = inputFormEducation.Text,
+                category = inputCategory.Text,
+                program = inputProgram.Text,
+                plan = inputPlan.Text,
+                privileges = inputPrivileges.Text,
+                primary = inputPrimary.Text,
+                foreignLang = inputForeignLang.Text,
+                phone = inputPhone.Text,
+                parent = inputParent.Text,
+                status = inputStatus.Text,
+                extra = inputExtra.Text,
+            };
 
             datas[0].results.Add(r);
-            _dbList.Items.Refresh();
             _dbList.ItemsSource = datas[0].results;
+            _dbList.Items.Filter = IDFilter;
+            _dbList.Items.Refresh();
+
         }
 
         private void About_Click(object sender, RoutedEventArgs e)
         {
             MessageBox.Show($"ADI PC v{version}\n\nРазработана на помощью: WPF & C#\nРазработчик: Дробный Павел", "ADI PC", MessageBoxButton.OK, MessageBoxImage.Information);
         }
+
+        private void Window_StateChanged(object sender, EventArgs e)
+        {
+            if (WindowState == WindowState.Maximized)
+            {
+                WindowMargin.Margin = new Thickness(10);
+            }
+            else
+            {
+                WindowMargin.Margin = new Thickness(1);
+            }
+        }
+
+        private void MinimizeButton_Click(object sender, RoutedEventArgs e)
+        {
+            WindowState = WindowState.Minimized;
+        }
+
+        private void MaximizeButton_Click(object sender, RoutedEventArgs e)
+        {
+            if (WindowState == WindowState.Normal)
+            {
+                WindowState = WindowState.Maximized;
+            }
+            else
+            {
+                WindowState = WindowState.Normal;
+            }
+        }
+
+        private void CloseButton_Click(object sender, RoutedEventArgs e)
+        {
+            Close();
+        }
+
+        private void searchByID_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            if (searchByID.Text == null)
+                _dbList.Items.Filter = null;
+            else
+                _dbList.Items.Filter = IDFilter;   
+        }
+
+        private bool IDFilter(object obj)
+        {
+            var filterObj = obj as Results;
+
+            return filterObj.personalID.Contains(searchByID.Text);
+        }
+
+        private void AddStudent_Click(object sender, RoutedEventArgs e)
+        {
+            AddStudent();
+        }
+
+        private void EditStudent_Click(object sender, RoutedEventArgs e)
+        {
+            if (MessageBox.Show("Редактировать текущее личное дело",
+                     "РЕДАКТИРОВАНИЕ ЛИЧНОГО ДЕЛА",
+                     MessageBoxButton.YesNo,
+                     MessageBoxImage.Warning) == MessageBoxResult.Yes)
+            {
+                Results editData = datas[0].results[_dbList.SelectedIndex];
+                inputDocumentsDate.Text = editData.documentsDate;
+                inputPersonalCode.Text = editData.personalID;
+                inputName.Text = editData.name;
+                inputAdress.Text = editData.adress;
+                inputBirthday.Text = editData.birthday;
+                inputIcode.Text = editData.icode;
+                inputIdentityDocument.Text = editData.identityDocument;
+                inputPreviouslyEducation.Text = editData.previouslyEducation;
+                inputAverageScoreCertificate.Text = editData.averageScoreCertificate.ToString();
+                inputScoreRussian.Text = editData.scoreRussian.ToString();
+                inputScoreMath.Text = editData.scoreMath.ToString();
+                inputProfileSubject.Text = editData.profileSubject;
+                inputScoreProfileSubject.Text = editData.scoreProfileSubject.ToString();
+                inputAverageScoreDegree.Text = editData.averageScoreDegree.ToString();
+                inputScoreGIA.Text = editData.scoreGIA.ToString();
+                inputScoreForeign.Text = editData.scoreForeign.ToString();
+                inputAverageScoreMiddle.Text = editData.averageScoreMiddle.ToString();
+                inputFaculty.Text = editData.faculty;
+                inputFormEducation.Text = editData.formEducation;
+                inputCategory.Text = editData.category;
+                inputProgram.Text = editData.program;
+                inputPlan.Text = editData.plan;
+                inputPrivileges.Text = editData.privileges;
+                inputPrimary.Text = editData.primary;
+                inputForeignLang.Text = editData.foreignLang;
+                inputPhone.Text = editData.phone;
+                inputParent.Text = editData.parent;
+                inputStatus.Text = editData.status;
+                inputExtra.Text = editData.extra;
+            }
+        }
+
+        private void ApplyEditStudent_Click(object sender, RoutedEventArgs e)
+        {
+            if (MessageBox.Show("Применить редактирование текущего личного дела",
+                     "ПРИМЕНИТЬ РЕДАКТИРОВАНИЕ ЛИЧНОГО ДЕЛА",
+                     MessageBoxButton.YesNo,
+                     MessageBoxImage.Warning) == MessageBoxResult.Yes)
+            {
+                Results editData = datas[0].results[_dbList.SelectedIndex];
+                editData.documentsDate = inputDocumentsDate.Text;
+                editData.personalID = inputPersonalCode.Text;
+                editData.name = inputName.Text;
+                editData.adress = inputAdress.Text;
+                editData.birthday = inputBirthday.Text;
+                editData.icode = inputIcode.Text;
+                editData.identityDocument = inputIdentityDocument.Text;
+                editData.previouslyEducation = inputPreviouslyEducation.Text;
+                editData.averageScoreCertificate = Convert.ToDouble(inputAverageScoreCertificate.Text);
+                editData.scoreRussian = Convert.ToInt32(inputScoreRussian.Text);
+                editData.scoreMath = Convert.ToInt32(inputScoreMath.Text);
+                editData.profileSubject = inputProfileSubject.Text;
+                editData.scoreProfileSubject = Convert.ToInt32(inputScoreProfileSubject.Text);
+                editData.averageScoreDegree = Convert.ToDouble(inputAverageScoreDegree.Text);
+                editData.scoreGIA = Convert.ToInt32(inputScoreGIA.Text);
+                editData.scoreForeign = Convert.ToInt32(inputScoreForeign.Text);
+                editData.averageScoreMiddle = Convert.ToDouble(inputAverageScoreMiddle.Text);
+                //editData.score = Convert.ToInt32(inputAverageScoreCertificate.Text)
+                //        + Convert.ToInt32(inputScoreRussian.Text)
+                //        + Convert.ToInt32(inputScoreMath.Text)
+                //        + Convert.ToInt32(inputScoreProfileSubject.Text)
+                //        + (int)Convert.ToDouble(inputAverageScoreDegree.Text)
+                //        + Convert.ToInt32(inputScoreGIA.Text)
+                //        + Convert.ToInt32(inputScoreForeign.Text)
+                //        + (int)Convert.ToDouble(inputAverageScoreMiddle.Text);
+                editData.faculty = inputFaculty.Text;
+                editData.formEducation = inputFormEducation.Text;
+                editData.category = inputCategory.Text;
+                editData.program = inputProgram.Text;
+                editData.plan = inputPlan.Text;
+                editData.privileges = inputPrivileges.Text;
+                editData.primary = inputPrimary.Text;
+                editData.foreignLang = inputForeignLang.Text;
+                editData.phone = inputPhone.Text;
+                editData.parent = inputParent.Text;
+                editData.status = inputStatus.Text;
+                editData.extra = inputExtra.Text;
+
+            }
+        }
+
+        private void DuplicateStudent_Click(object sender, RoutedEventArgs e)
+        {
+            if (MessageBox.Show("Дублировать текущее личное дело",
+                     "СОЗДАНИЕ ДУБЛИКАТА",
+                     MessageBoxButton.YesNo,
+                     MessageBoxImage.Warning) == MessageBoxResult.Yes)
+            {
+
+                Results newProfile = datas[0].results[_dbList.SelectedIndex];
+                datas[0].results.Add(newProfile);
+                _dbList.ItemsSource = datas[0].results;
+                _dbList.Items.Filter = IDFilter;
+                _dbList.Items.Refresh();
+                _dbList.SelectedIndex = 0;
+            }
+        }
+
+        private void DeleteStudent_Click(object sender, RoutedEventArgs e)
+        {
+            if (MessageBox.Show("Удалить личное дело",
+                     "УДАЛЕНИЯ ЛИЧНОГО ДЕЛА",
+                     MessageBoxButton.YesNo,
+                     MessageBoxImage.Warning) == MessageBoxResult.Yes)
+            {
+
+                datas[0].results.RemoveAt(_dbList.SelectedIndex);
+                _dbList.ItemsSource = datas[0].results;
+                _dbList.Items.Filter = IDFilter;
+                _dbList.Items.Refresh();
+                _dbList.SelectedIndex = 0;
+            }
+        }
+
+        private void RemoveAll_Click(object sender, RoutedEventArgs e)
+        {
+            if (MessageBox.Show("Все личные дела будут удалены. Продолжить?",
+                     "УДАЛЕНИЯ ВСЕХ ЛИЧНЫХ ДЕЛ",
+                     MessageBoxButton.YesNo,
+                     MessageBoxImage.Warning) == MessageBoxResult.Yes)
+            {
+                datas[0].results.Clear();
+                _dbList.ItemsSource = datas[0].results;
+                _dbList.Items.Filter = IDFilter;
+                _dbList.Items.Refresh();
+                _dbList.SelectedIndex = -1;
+                _dbListPreview.Items.Clear();
+            }
+        }
     }
 
-    public enum DebugState
+    public enum OutputState
     {
         None,
-        Selected
+        Selected,
+        Debug
     }
 
     public class Data

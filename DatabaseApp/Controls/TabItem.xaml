@@ -41,7 +41,7 @@
                 <ControlTemplate TargetType="{x:Type TabItem}">
                     <Grid x:Name="templateRoot" SnapsToDevicePixels="true" Margin="0 0 10 5">
                         <Border x:Name="mainBorder" Width="Auto" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="0" Margin="0" Padding="0">
-                            <Border x:Name="innerBorder" CornerRadius="6" Background="{StaticResource ADIApp.PrimaryColor}" BorderBrush="{StaticResource TabItem.Selected.Border}" Width="Auto" BorderThickness="0"  Margin="0" Opacity="0"/>
+                            <Border x:Name="innerBorder" CornerRadius="10" Background="{StaticResource ADIApp.PrimaryColor}" BorderBrush="{StaticResource TabItem.Selected.Border}" Width="Auto" BorderThickness="0"  Margin="0" Opacity="0"/>
                         </Border>
                         <ContentPresenter x:Name="contentPresenter" ContentSource="Header" Focusable="False" HorizontalAlignment="{Binding HorizontalContentAlignment, RelativeSource={RelativeSource AncestorType={x:Type ItemsControl}}}" Margin="{TemplateBinding Padding}" RecognizesAccessKey="True" SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" VerticalAlignment="{Binding VerticalContentAlignment, RelativeSource={RelativeSource AncestorType={x:Type ItemsControl}}}"/>
                     </Grid>

@@ -6,5 +6,5 @@
              xmlns:local="clr-namespace:DatabaseApp.userControls"
              mc:Ignorable="d">
 
-    <TextBlock x:Name="titleForm_block" FontSize="15" Foreground="Black" Padding="2 0 0 2" Text="{Binding Text}"/>
+    <TextBlock x:Name="titleForm_block" FontSize="14" Foreground="Black" Padding="2 0 0 2" Text="{Binding Text}"/>
 </UserControl>

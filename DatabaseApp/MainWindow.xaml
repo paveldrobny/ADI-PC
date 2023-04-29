@@ -3,36 +3,37 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:DatabaseApp.userControls.pages"
+        xmlns:local="clr-namespace:DatabaseApp.userControls"
         mc:Ignorable="d"
-        Title="База данных АДИ" Height="500" Width="800" Background="#B9B9B9">
+        Title="База данных АДИ" Height="510" MinHeight="510" MinWidth="819" Width="819" Background="#B9B9B9" StateChanged="Window_StateChanged" WindowStartupLocation="CenterScreen">
 
     <WindowChrome.WindowChrome>
         <WindowChrome ResizeBorderThickness="6" CaptionHeight="22" CornerRadius="0"
                       GlassFrameThickness="0" UseAeroCaptionButtons="False"/>
     </WindowChrome.WindowChrome>
 
-    <Grid Margin="1" Background="{StaticResource App.Background}">
+    <Grid x:Name="WindowMargin" Margin="1" Background="{StaticResource App.Background}">
         <DockPanel Height="26" HorizontalAlignment="Stretch" VerticalAlignment="Top">
             <Image Source="/Images/logo.png"/>
             <DockPanel Width="5"/>
             <Menu Height="18" VerticalAlignment="Center" HorizontalAlignment="Center" WindowChrome.IsHitTestVisibleInChrome="True" Margin="0,2,0,0">
                 <MenuItem Header="Файл" Height="18" VerticalAlignment="Center">
                     <MenuItem Header="Открыть файл" Click="Button_Click"/>
-                    <MenuItem Header="Сохранить файл"/>
-                    <MenuItem Header="Сохранить как..."/>
-                    <MenuItem Header="Экспорт в JSON..."/>
+                    <MenuItem Header="Сохранить файл" Click="Button_Click_1"/>
+                    <!--<MenuItem Header="Сохранить как..."/>-->
+                    <!--<MenuItem Header="Экспорт в JSON..."/>-->
                     <MenuItem Header="Экспорт для MS Excel..."/>
                     <Separator />
-                    <MenuItem Header="Выход"/>
+                    <MenuItem Header="Выход" Click="CloseButton_Click"/>
                 </MenuItem>
                 <MenuItem Header="Действия" VerticalAlignment="Center">
-                    <MenuItem Header="Добавить абитуриента"/>
-                    <MenuItem Header="Редактировать абитуриента"/>
-                    <MenuItem Header="Дублировать абитуриента"/>
-                    <MenuItem Header="Удалить абитуриента"/>
+                    <MenuItem Header="Добавить абитуриента" Click="AddStudent_Click"/>
+                    <MenuItem Header="Редактировать абитуриента" Click="EditStudent_Click"/>
+                    <MenuItem Header="Применить редактирование" Click="ApplyEditStudent_Click"/>
+                    <MenuItem Header="Дублировать абитуриента" Click="DuplicateStudent_Click"/>
+                    <MenuItem Header="Удалить абитуриента" Click="DeleteStudent_Click"/>
                     <Separator/>
-                    <MenuItem Header="Очистить все поля"/>
+                    <MenuItem Header="Очистить все поля" Click="RemoveAll_Click"/>
                 </MenuItem>
                 <MenuItem Header="Справка" VerticalAlignment="Center">
                     <MenuItem Header="Проверить наличие обновлений" Click="CheckForUpdatesButton_Click"/>
@@ -42,7 +43,7 @@
                 </MenuItem>
             </Menu>
             <StackPanel Height="26" VerticalAlignment="Center" Orientation="Horizontal" HorizontalAlignment="Right">
-                <Button Style="{DynamicResource TitleBarButtonStyle}" Width="34" Height="26" WindowChrome.IsHitTestVisibleInChrome="True">
+                <Button x:Name="MinimizeButton" Style="{DynamicResource TitleBarButtonStyle}" Width="34" Height="26" WindowChrome.IsHitTestVisibleInChrome="True" Click="MinimizeButton_Click">
                     <Path
                 Stroke="{Binding Foreground, RelativeSource={RelativeSource AncestorType={x:Type Button}}}"
                 StrokeThickness="1"
@@ -51,7 +52,7 @@
                 Data="M0,8 H8 M0,7 H8 M0,6 H8"
             />
                 </Button>
-                <Button Style="{DynamicResource TitleBarButtonStyle}" Width="34" Height="26" WindowChrome.IsHitTestVisibleInChrome="True">
+                <Button x:Name="MaximizeButton" Style="{DynamicResource TitleBarButtonStyle}" Width="34" Height="26" WindowChrome.IsHitTestVisibleInChrome="True" Click="MaximizeButton_Click">
                     <Path
                 Stroke="{Binding Foreground, RelativeSource={RelativeSource AncestorType={x:Type Button}}}"
                 StrokeThickness="1"
@@ -60,7 +61,7 @@
                 Data="M0,0 H8 V8 H0 V-0.5 M0,1 H8 M0,2 H8"
             />
                 </Button>
-                <Button Style="{DynamicResource TitleBarButtonStyle}" Width="34" Height="26" WindowChrome.IsHitTestVisibleInChrome="True">
+                <Button x:Name="CloseButton" Style="{DynamicResource TitleBarButtonStyle}" Width="34" Height="26" WindowChrome.IsHitTestVisibleInChrome="True" Click="CloseButton_Click">
                     <Path
                 Stroke="{Binding Foreground, RelativeSource={RelativeSource AncestorType={x:Type Button}}}"
                 StrokeThickness="1.5"
@@ -73,15 +74,14 @@
 
 
         <TabControl Background="White" Margin="5,41,5,20" Padding="0">
-            <TabItem Header="Список абитуриентов" Width="Auto" FontSize="14">
+            <TabItem Header="Список абитуриентов" Width="Auto" FontSize="15">
                 <Grid>
                     <Grid.RowDefinitions>
                         <RowDefinition Height="3*"/>
                         <RowDefinition Height="76*"/>
                     </Grid.RowDefinitions>
-                    <TextBox Template="{DynamicResource TextBoxSearch}" x:Name="searchByID" Text="Поиск по № личного дела" VerticalContentAlignment="Center" Height="30" VerticalAlignment="Top" Margin="0,0,450,0" Grid.RowSpan="2"/>
-                    <ListBox x:Name="_dbList" BorderThickness="1,1,0,0" BorderBrush="{StaticResource Controls.Border}" SelectionMode="Single" Width="Auto" Margin="0,15,450,0" SelectionChanged="_dbList_SelectionChanged" Foreground="Black" ScrollViewer.CanContentScroll="True" Grid.Row="1" />
-
+                    <TextBox Template="{DynamicResource TextBoxSearch}" x:Name="searchByID" Text="" VerticalContentAlignment="Center" Height="30" VerticalAlignment="Top" Margin="0,0,450,0" Grid.RowSpan="2" TextChanged="searchByID_TextChanged"/>
+                    <ListBox x:Name="_dbList" BorderThickness="1,1,0,0" TextSearch.TextPath="1" IsTextSearchEnabled="True" BorderBrush="{StaticResource Controls.Border}" SelectionMode="Single" Width="Auto" Margin="0,15,450,0" SelectionChanged="_dbList_SelectionChanged" Foreground="Black" ScrollViewer.CanContentScroll="True" Grid.Row="1" />
                     <!--<ListView.View>
                             <GridView>
                                 <GridViewColumn Header="№ личного дела" DisplayMemberBinding="{Binding personalID}"/>
@@ -105,17 +105,228 @@
                 </DataGrid>
             </TabItem>-->
             <TabItem Header="Ввод данных">
-                <local:page1/>
+                <WrapPanel Margin="5" HorizontalAlignment="Stretch" Orientation="Horizontal" Background="White">
+                    <!-- 1 -->
+                    <ScrollViewer VerticalScrollBarVisibility="Auto"  Height="{Binding Path=ActualHeight, 
+                         RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=UIElement}}">
+                        <WrapPanel HorizontalAlignment="Stretch" Orientation="Horizontal">
+
+                            <!-- 1 -->
+                            <StackPanel HorizontalAlignment="Left" Margin="8">
+                                <local:TitleForm Text="№ личного дела"/>
+                                <TextBox x:Name="inputPersonalCode" Width="375" Padding="2" FontSize="15" VerticalAlignment="Top"  Height="30" VerticalContentAlignment="Center"/>
+                            </StackPanel>
+                            <StackPanel HorizontalAlignment="Left" Margin="8">
+                                <local:TitleForm Text="Адрес проживания"/>
+                                <TextBox x:Name="inputAdress" Width="375" Padding="2" FontSize="15" VerticalAlignment="Top"  Height="30" VerticalContentAlignment="Center"/>
+                            </StackPanel>
+                            <StackPanel HorizontalAlignment="Left" Margin="8">
+                                <local:TitleForm Text="Данные документа удостоверяющего личность"/>
+                                <TextBox x:Name="inputIdentityDocument" Width="375" Padding="2" FontSize="15" VerticalAlignment="Top"  Height="30" VerticalContentAlignment="Center"/>
+                            </StackPanel>
+                            <StackPanel HorizontalAlignment="Left" Margin="8">
+                                <local:TitleForm Text="Балл по русскому языку"/>
+                                <TextBox x:Name="inputScoreRussian" Width="375" Padding="2" FontSize="15" VerticalAlignment="Top"  Height="30" VerticalContentAlignment="Center"/>
+                            </StackPanel>
+                            <StackPanel HorizontalAlignment="Left" Margin="8">
+                                <local:TitleForm Text="Балл по проф предмету"/>
+                                <TextBox Width="375" x:Name="inputScoreProfileSubject" Padding="2" FontSize="15" VerticalAlignment="Top"  Height="30" VerticalContentAlignment="Center"/>
+                            </StackPanel>
+                            <StackPanel HorizontalAlignment="Left" Margin="8">
+                                <local:TitleForm Text="Балл по иностранному"/>
+                                <TextBox Width="375" x:Name="inputScoreForeign" Padding="2" FontSize="15" VerticalAlignment="Top"  Height="30" VerticalContentAlignment="Center"/>
+                            </StackPanel>
+                            <StackPanel HorizontalAlignment="Left" Margin="8">
+                                <local:TitleForm Text="Факультет"/>
+                                <ComboBox Width="375" x:Name="inputFaculty" Height="30">
+                                    <ComboBoxItem Content="ДТ"/>
+                                    <ComboBoxItem Content="ТиИТ"/>
+                                </ComboBox>
+                            </StackPanel>
+                            <StackPanel HorizontalAlignment="Left" Margin="8">
+                                <local:TitleForm Text="Образовательная программа"/>
+                                <ComboBox x:Name="inputProgram" Width="375" Height="30">
+                                    <ComboBoxItem Content="Бакалавриат"/>
+                                    <ComboBoxItem Content="Магистратура"/>
+                                    <ComboBoxItem Content="Специалитет"/>
+                                </ComboBox>
+                            </StackPanel>
+                            <StackPanel HorizontalAlignment="Left" Margin="8">
+                                <local:TitleForm Text="Преим. право зачисления"/>
+                                <ComboBox Width="375" x:Name="inputPrimary" FontSize="15" Height="30">
+                                    <ComboBoxItem Width="500" Content="Нет"/>
+                                    <ComboBoxItem Width="500" MaxHeight="450">
+                                        <TextBlock TextWrapping="Wrap">а) дети-сироты и дети, оставшиеся без попечения родителей, а также лица из числа детей-сирот и детей, оставшихся без попечения родителей;</TextBlock>
+                                    </ComboBoxItem>
+                                    <ComboBoxItem Width="500" Content="б) дети-инвалиды; инвалиды I и II групп;"/>
+                                    <ComboBoxItem Width="500" MaxHeight="450">
+                                        <TextBlock TextWrapping="Wrap">в) дети военнослужащих и ополченцев, погибших при исполнении ими обязанностей военной службы или умерших вследствие увечья (ранения, травмы, контузии) либо заболевания, полученных ими при исполнении обязанностей военной службы;</TextBlock>
+                                    </ComboBoxItem>
+                                    <ComboBoxItem Width="500" Content="д) инвалиды и участники боевых действий;"/>
+                                    <ComboBoxItem Width="500" Content="е) дети погибших шахтеров;"/>
+                                    <ComboBoxItem Width="500" MaxHeight="450">
+                                        <TextBlock TextWrapping="Wrap">ж) шахтеры, имеющие непрерывный стаж подземной работы не менее трех лет;</TextBlock>
+                                    </ComboBoxItem>
+                                    <ComboBoxItem Width="500" MaxHeight="450">
+                                        <TextBlock TextWrapping="Wrap">з) лица до 21 года на протяжении трех лет после получения общего среднего образования, родители или один из родителей которых (шахтеры) имеют стаж подземной работы не менее 15 лет или погибли (погиб) в результате несчастного случая на производстве; либо стали (стал) инвалидами I  или II группы вследствие производственных травм или профессиональных заболеваний</TextBlock>
+                                    </ComboBoxItem>
+                                </ComboBox>
+                            </StackPanel>
+                            <StackPanel HorizontalAlignment="Left" Margin="8">
+                                <local:TitleForm Text="Сведения о родителях"/>
+                                <TextBox Width="375" x:Name="inputParent" Padding="2" FontSize="15" VerticalAlignment="Top"  Height="30" VerticalContentAlignment="Center"/>
+                            </StackPanel>
+
+                            <!-- 2 -->
+                            <StackPanel HorizontalAlignment="Left" Margin="8">
+                                <local:TitleForm Text="Дата подачи документов"/>
+                                <DatePicker Width="375" x:Name="inputDocumentsDate" Padding="2" FontSize="15" VerticalAlignment="Top"  Height="30" VerticalContentAlignment="Center"/>
+                            </StackPanel>
+                            <StackPanel HorizontalAlignment="Left" Margin="8">
+                                <local:TitleForm Text="Дата рождения"/>
+                                <DatePicker Width="375" x:Name="inputBirthday" Padding="2" FontSize="15" VerticalAlignment="Top"  Height="30" VerticalContentAlignment="Center"/>
+                            </StackPanel>
+                            <StackPanel HorizontalAlignment="Left" Margin="8">
+                                <local:TitleForm Text="Данные документа о ранее полученном образовании"/>
+                                <TextBox Width="375" x:Name="inputPreviouslyEducation" Padding="2" FontSize="15" VerticalAlignment="Top"  Height="30" VerticalContentAlignment="Center"/>
+                            </StackPanel>
+                            <StackPanel HorizontalAlignment="Left" Margin="8">
+                                <local:TitleForm Text="Балл по математике"/>
+                                <TextBox Width="375" x:Name="inputScoreMath" Padding="2" FontSize="15" VerticalAlignment="Top"  Height="30" VerticalContentAlignment="Center"/>
+                            </StackPanel>
+                            <StackPanel HorizontalAlignment="Left" Margin="8">
+                                <local:TitleForm Text="Средний балл диплома бакалавра / специалиста"/>
+                                <TextBox Width="375" x:Name="inputAverageScoreDegree" Padding="2" FontSize="15" VerticalAlignment="Top"  Height="30" VerticalContentAlignment="Center"/>
+                            </StackPanel>
+                            <StackPanel HorizontalAlignment="Left" Margin="8">
+                                <local:TitleForm Text="Средний балл диплома специалиста среднего звена"/>
+                                <TextBox Width="375" x:Name="inputAverageScoreMiddle" Padding="2" FontSize="15" VerticalAlignment="Top"  Height="30" VerticalContentAlignment="Center"/>
+                            </StackPanel>
+                            <StackPanel HorizontalAlignment="Left" Margin="8">
+                                <local:TitleForm Text="Форма обучения"/>
+                                <ComboBox Width="375" x:Name="inputFormEducation" FontSize="15" Height="30">
+                                    <ComboBoxItem Content="Очная"/>
+                                    <ComboBoxItem Content="Заочная"/>
+                                    <ComboBoxItem Content="Очная ССО"/>
+                                    <ComboBoxItem Content="Заочная ССО"/>
+                                </ComboBox>
+                            </StackPanel>
+                            <StackPanel HorizontalAlignment="Left" Margin="8">
+                                <local:TitleForm Text="План"/>
+                                <ComboBox Width="375" x:Name="inputPlan" FontSize="15" Height="30">
+                                    <ComboBoxItem Content="Бюджет"/>
+                                    <ComboBoxItem Content="Контракт"/>
+                                </ComboBox>
+                            </StackPanel>
+                            <StackPanel HorizontalAlignment="Left" Margin="8">
+                                <local:TitleForm Text="Иностранный язык, который изучался"/>
+                                <ComboBox Width="375" x:Name="inputForeignLang" FontSize="15" Height="30">
+                                    <ComboBoxItem Content="Английский"/>
+                                    <ComboBoxItem Content="Французкий"/>
+                                    <ComboBoxItem Content="Немецкий"/>
+                                </ComboBox>
+                            </StackPanel>
+                            <StackPanel HorizontalAlignment="Left" Margin="8">
+                                <local:TitleForm Text="Статус"/>
+                                <ComboBox Width="375" x:Name="inputStatus" FontSize="15" Height="30">
+                                    <ComboBoxItem Content="Конкурс"/>
+                                    <ComboBoxItem Content="Зачислен"/>
+                                </ComboBox>
+                            </StackPanel>
+
+                            <!-- 3 -->
+                            <StackPanel HorizontalAlignment="Left" Margin="8">
+                                <local:TitleForm Text="ФИО"/>
+                                <TextBox Width="375" x:Name="inputName" Padding="2" FontSize="15" VerticalAlignment="Top"  Height="30" VerticalContentAlignment="Center"/>
+                            </StackPanel>
+                            <StackPanel HorizontalAlignment="Left" Margin="8">
+                                <local:TitleForm Text="ИНН"/>
+                                <TextBox Width="375" x:Name="inputIcode" Padding="2" FontSize="15" VerticalAlignment="Top"  Height="30" VerticalContentAlignment="Center"/>
+                            </StackPanel>
+                            <StackPanel HorizontalAlignment="Left" Margin="8">
+                                <local:TitleForm Text="Средний балл аттестата"/>
+                                <TextBox Width="375" x:Name="inputAverageScoreCertificate" Padding="2" FontSize="15" VerticalAlignment="Top"  Height="30" VerticalContentAlignment="Center"/>
+                            </StackPanel>
+                            <StackPanel HorizontalAlignment="Left" Margin="8">
+                                <local:TitleForm Text="Профильный предмет"/>
+                                <ComboBox Width="375" x:Name="inputProfileSubject" FontSize="15" Height="30">
+                                    <ComboBoxItem Content="Информатика и ИКТ"/>
+                                    <ComboBoxItem Content="Иностранный язык"/>
+                                    <ComboBoxItem Content="История"/>
+                                </ComboBox>
+                            </StackPanel>
+                            <StackPanel HorizontalAlignment="Left" Margin="8">
+                                <local:TitleForm Text="Балл по ГИА"/>
+                                <TextBox Width="375" x:Name="inputScoreGIA" Padding="2" FontSize="15" VerticalAlignment="Top"  Height="30" VerticalContentAlignment="Center"/>
+                            </StackPanel>
+                            <StackPanel HorizontalAlignment="Left" Margin="8">
+                                <local:TitleForm Text="Доп. балл / причины начисления"/>
+                                <ComboBox Width="375" x:Name="inputExtra" FontSize="15" Height="30">
+                                    <ComboBoxItem Width="500" Content="Нет"/>
+                                    <ComboBoxItem Width="500" MaxHeight="450">
+                                        <TextBlock TextWrapping="Wrap">а) наличие золотого, серебряного или бронзового знака отличия Государственного физкультурно-спортивного комплекса «Готов к труду и обороне Донецкой Народной Республики» – 2 балла</TextBlock>
+                                    </ComboBoxItem>
+                                    <ComboBoxItem Width="500" MaxHeight="450">
+                                        <TextBlock TextWrapping="Wrap">б) наличие полученных в образовательных организациях Донецкой Народной Республики документов об образовании или об образовании и о квалификации с отличием – 5 баллов</TextBlock>
+                                    </ComboBoxItem>
+                                    <ComboBoxItem Width="500" MaxHeight="450">
+                                        <TextBlock TextWrapping="Wrap">в) наличие Золотой медали «За особые успехи в учении» – 7 баллов</TextBlock>
+                                    </ComboBoxItem>
+                                    <ComboBoxItem Width="500" MaxHeight="450">
+                                        <TextBlock TextWrapping="Wrap">г) наличие Серебряной медали «За особые успехи в учении» – 5 баллов</TextBlock>
+                                    </ComboBoxItem>
+                                    <ComboBoxItem Width="500" MaxHeight="450">
+                                        <TextBlock TextWrapping="Wrap">д) волонтерская (добровольческая) деятельность - 2 балла</TextBlock>
+                                    </ComboBoxItem>
+                                </ComboBox>
+                            </StackPanel>
+                            <StackPanel HorizontalAlignment="Left" Margin="8">
+                                <local:TitleForm Text="Направление подготовки / специальность"/>
+                                <ComboBox Width="375" x:Name="inputCategory" FontSize="15" Height="30">
+                                    <ComboBoxItem Width="500" Content="38.03.05 «Бизнес-информатика»"/>
+                                    <ComboBoxItem Width="500" MaxHeight="450">
+                                        <TextBlock TextWrapping="Wrap">23.03.01 «Технология транспортных процессов ОПУТ / ОБД»</TextBlock>
+                                    </ComboBoxItem>
+                                    <ComboBoxItem Width="500" MaxHeight="450">
+                                        <TextBlock TextWrapping="Wrap">20.04.01 «Техносферная безопасность» (Маг)</TextBlock>
+                                    </ComboBoxItem>
+                                    <ComboBoxItem Width="500" MaxHeight="450">
+                                        <TextBlock TextWrapping="Wrap">23.03.03 «Эксплуатация транспортно-технологических машин и комплексов»</TextBlock>
+                                    </ComboBoxItem>
+                                    <ComboBoxItem Width="500" MaxHeight="450">
+                                        <TextBlock TextWrapping="Wrap">23.05.01 «Наземные транспортно-технологические средства» (Маг)</TextBlock>
+                                    </ComboBoxItem>
+                                    <ComboBoxItem Width="500" MaxHeight="450">
+                                        <TextBlock TextWrapping="Wrap">20.03.01 «Техносферная безопасность»</TextBlock>
+                                    </ComboBoxItem>
+                                    <ComboBoxItem Width="500" MaxHeight="450">
+                                        <TextBlock TextWrapping="Wrap">38.04.02 «Менеджмент» (Маг)</TextBlock>
+                                    </ComboBoxItem>
+                                    <ComboBoxItem Width="500" MaxHeight="450">
+                                        <TextBlock TextWrapping="Wrap">38.03.02 «Менеджмент»</TextBlock>
+                                    </ComboBoxItem>
+                                </ComboBox>
+                            </StackPanel>
+                            <StackPanel HorizontalAlignment="Left" Margin="8">
+                                <local:TitleForm Text="Наличие льгот"/>
+                                <ComboBox Width="375" x:Name="inputPrivileges" FontSize="15" Height="30">
+                                    <ComboBoxItem Content="Да"/>
+                                    <ComboBoxItem Content="Нет"/>
+                                </ComboBox>
+                            </StackPanel>
+                            <StackPanel HorizontalAlignment="Left" Margin="8">
+                                <local:TitleForm Text="Телефоны для связи"/>
+                                <TextBox Width="375" x:Name="inputPhone" Padding="2" FontSize="15" VerticalAlignment="Top"  Height="30" VerticalContentAlignment="Center"/>
+                            </StackPanel>
+                        </WrapPanel>
+                    </ScrollViewer>
+                </WrapPanel>
+                <!--<local:page1/>-->
             </TabItem>
         </TabControl>
 
         <StackPanel Background="#861B2D"  Height="18" VerticalAlignment="Bottom">
             <TextBlock x:Name="txtDebug" Foreground="White" Padding="5,0,0,0" Text="..." Height="18"/>
         </StackPanel>
-        <Button Visibility="Hidden" Content="Button" HorizontalAlignment="Left" Margin="146,56,0,0" VerticalAlignment="Top" Click="Button_Click"/>
-        <Button Visibility="Hidden" Content="Button" HorizontalAlignment="Left" Margin="273,66,0,0" VerticalAlignment="Top" Click="Button_Click_1"/>
-        <TextBox Visibility="Hidden" x:Name="testNAME" HorizontalAlignment="Left" Margin="322,48,0,0" TextWrapping="Wrap" Text="TextBox" VerticalAlignment="Top" Width="194"/>
-        <TextBox Visibility="Hidden" x:Name="testCODE" HorizontalAlignment="Left" Margin="322,76,0,0" TextWrapping="Wrap" Text="TextBox" VerticalAlignment="Top" Width="194"/>
-        <Button Visibility="Hidden" Content="Button" HorizontalAlignment="Left" Margin="540,57,0,0" VerticalAlignment="Top" Click="Button_Click_2"/>
     </Grid>
 </Window>

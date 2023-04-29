@@ -22,7 +22,7 @@
                     <MenuItem Header="Сохранить файл" Click="Button_Click_1"/>
                     <!--<MenuItem Header="Сохранить как..."/>-->
                     <!--<MenuItem Header="Экспорт в JSON..."/>-->
-                    <MenuItem Header="Экспорт для MS Excel..."/>
+                    <!--<MenuItem Header="Экспорт для MS Excel..."/>-->
                     <Separator />
                     <MenuItem Header="Выход" Click="CloseButton_Click"/>
                 </MenuItem>

@@ -2,7 +2,7 @@
 <package >
   <metadata>
     <id>DatabaseApp</id>
-    <version>0.4.1</version>
+    <version>0.4.2</version>
     <title>ADI PC</title>
     <authors>Pavel Drobny</authors>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
